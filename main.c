@@ -6,33 +6,57 @@
 */
 
 #include <string.h>
-
+#include <stdio.h>
 #include "screen.h"
 #include "keyboard.h"
 #include "timer.h"
+#include <unistd.h>
+#include <stdlib.h>
+#include <time.h>
+
+
+enum{
+    KEY_ESC = 27,
+    ENTER = 10,
+    KEY_W = 119,
+    KEY_S = 115,
+    KEY_A = 97,
+    KEY_D = 100
+};
+
+struct cobrinha{
+    int noX;
+    int noY;
+    struct cobrinha *next;
+};
+
+struct ranking{
+    char nome[21];
+    int pontuacao;
+};
 
 int x = 34, y = 12;
 int incX = 1, incY = 1;
 
 void printHello(int nextX, int nextY)
 {
-    screenSetColor(CYAN, DARKGRAY);
+    screenSetColor(GREEN, DARKGRAY);
     screenGotoxy(x, y);
-    printf("           ");
+    printf(" ");
     x = nextX;
     y = nextY;
     screenGotoxy(x, y);
-    printf("Hello World");
+    printf("S");
 }
 
 void printKey(int ch)
 {
     screenSetColor(YELLOW, DARKGRAY);
     screenGotoxy(35, 22);
-    printf("Key code :");
+    printf("Pontuação :");
 
     screenGotoxy(34, 23);
-    printf("            ");
+    printf(" ");
     
     if (ch == 27) screenGotoxy(36, 23);
     else screenGotoxy(39, 23);
@@ -44,6 +68,14 @@ void printKey(int ch)
     }
 }
 
+void printmaca(int x, int y)
+{
+    screenSetColor(RED, DARKGRAY);
+    screenGotoxy(x, y);
+    printf("O");
+}
+
+
 int main() 
 {
     static int ch = 0;
@@ -52,7 +84,9 @@ int main()
     keyboardInit();
     timerInit(50);
 
-    printHello(x, y);
+    srand((unsigned int)time(NULL));
+    int macax = rand() % 76, macay = rand() % 20;
+    printmaca(macax, macay);
     screenUpdate();
 
     while (ch != 10) //enter
