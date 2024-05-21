@@ -6,6 +6,7 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
+#include <limits.h>
 
 enum {
   KEY_ESC = 27,
@@ -16,58 +17,73 @@ enum {
   KEY_D = 100
 };
 
-struct Snakenode {
+struct noparacobra {
   int Xno;
   int Yno;
-  struct Snakenode *next;
+  struct noparacobra *next;
 };
 
 struct Jogador {
-  char Nome[21];
+  char nome[11];
   int score;
 };
 
-struct Highscore {
+struct ranking {
   struct Jogador jogador;
-  struct Highscore *next;
+  struct ranking *next;
 };
 
-void printPlacar(int placar);
-void printGameOver();
-void AdicionarSnake(struct Snakenode **head, int x, int y);
-void printSnake(struct Snakenode *head);
-void LimparSnake(struct Snakenode *head);
-void FreeSnake(struct Snakenode **head);
-void MoveSnake(struct Snakenode **head, int x, int y);
-void PrintMaca(int x, int y);
-int ColisaoCorpo(struct Snakenode *head, int x, int y);
-void ProxMaca(int *x, int *y);
-void OrdenarLista(struct Highscore **cabeca, struct Jogador nick);
-void EscreverLista(struct Highscore *cabeca, FILE *in);
-void PrintarLista(struct Highscore *cabeca);
-void FreeLista(struct Highscore **head);
+void printembaixo(int placar, int recorde, int  temp1o);
+void addcobra(struct noparacobra **head, int x, int y);
+void printcobra(struct noparacobra *head);
+void atualizarcobra(struct noparacobra *head);
+void freecobra(struct noparacobra **head);
+void cobrandando(struct noparacobra **head, int x, int y);
+void printfruta(int x, int y);
+int baternocorpo(struct noparacobra *head, int x, int y);
+void randonmaca(int *x, int *y);
+void rankingemordem(struct ranking **cabeca, struct Jogador nick);
+void addnoranking(struct ranking *cabeca, FILE *in);
+void printranking(struct ranking *cabeca);
+void freeranking(struct ranking **head);
 
 int incX = 1, incY = 1;
 
 int main() {
-  struct Snakenode *head = NULL;
+  struct noparacobra *head = NULL;
   static int ch = 0;
   int placar = 0;
   int dirX = 1, dirY = 0; // Inicialmente movendo para a direita
   FILE *in;
   struct Jogador player;
-  printf("Digite seu nick para ser salvo no rank: ");
-  scanf("%s", player.Nome);
+  printf("🐍🍎 SNAKE GAME 🍎🐍\n");
+  printf("Digite seu nick para ser salvo no ranking: ");
+  scanf("%s", player.nome);
 
   screenInit(1);
   keyboardInit();
   timerInit(50);
 
-  AdicionarSnake(&head, 34, 12);
+  addcobra(&head, 34, 12);
   srand((unsigned int)time(NULL));
   int PosMacaX = rand() % 68 + 8, PosMacaY = rand() % 16 + 4;
-  PrintMaca(PosMacaX, PosMacaY);
+  printfruta(PosMacaX, PosMacaY);
   screenUpdate();
+
+  int recorde = INT_MIN; // definido no <limits.h>
+  in = fopen("placar.txt", "r");
+  if (in != NULL) {
+    while (fread(&player, sizeof(struct Jogador), 1, in) == 1) {
+      if (player.score > recorde) {
+        recorde = player.score;
+      }
+    }
+    fclose(in);
+  }
+
+  time_t start_time, current_time;
+  int  temp1o = 0;
+  start_time = time(NULL);
 
   while (ch != KEY_ESC) {
     if (keyhit()) {
@@ -111,76 +127,86 @@ int main() {
         break; // Colisão com a parede
       }
 
-      if (ColisaoCorpo(head, newX, newY) == 1) {
+      if (baternocorpo(head, newX, newY) == 1) {
         break; // Colisão com o próprio corpo
       }
 
       if (newX == PosMacaX && newY == PosMacaY) {
-        AdicionarSnake(&head, PosMacaX, PosMacaY);
-        ProxMaca(&PosMacaX, &PosMacaY);
-        PrintMaca(PosMacaX, PosMacaY);
+        addcobra(&head, PosMacaX, PosMacaY);
+        randonmaca(&PosMacaX, &PosMacaY);
+        printfruta(PosMacaX, PosMacaY);
         placar++;
       }
-      printPlacar(placar);
       // Mover a cobra
-      LimparSnake(head); // Limpa a posição anterior
-      MoveSnake(&head, newX, newY);
-      printSnake(head); // Desenha a cobra na nova posição
+      atualizarcobra(head); // Limpa a posição anterior
+      cobrandando(&head, newX, newY);
+      printcobra(head); // Desenha a cobra na nova posição
       screenUpdate();
+      printembaixo(placar, recorde,  temp1o);
     }
+
+    current_time = time(NULL);
+     temp1o = difftime(current_time, start_time);
   }
 
-  FreeSnake(&head);
+  freecobra(&head);
   keyboardDestroy();
   screenDestroy();
   player.score = placar;
-  in = (fopen("placar.txt", "a")); // começo placar
+  in = fopen("placar.txt", "a"); // começo placar
   fwrite(&player, sizeof(struct Jogador), 1, in);
   fclose(in);
-  struct Highscore *lista = NULL;
-  in = (fopen("placar.txt", "r"));
+  struct ranking *lista = NULL;
+  in = fopen("placar.txt", "r");
   while (fread(&player, sizeof(struct Jogador), 1, in) == 1) {
-    OrdenarLista(&lista, player);
+    rankingemordem(&lista, player);
   }
   fclose(in);
-  in = (fopen("placar.txt", "w"));
-  EscreverLista(lista, in);
+  in = fopen("placar.txt", "w");
+  addnoranking(lista, in);
   fclose(in);
-  PrintarLista(lista);
-  FreeLista(&lista); // fim do placar
-  printGameOver();
+  printranking(lista);
+  freeranking(&lista); // fim do placar
   timerDestroy();
 
   return 0;
 }
 
-void printGameOver() {
+void printembaixo(int placar, int recorde, int  temp1o) {
   screenSetColor(YELLOW, DARKGRAY);
-  screenGotoxy(30, 10);
-  printf("Game over!");
-}
-
-void printPlacar(int placar) {
-  screenSetColor(YELLOW, DARKGRAY);
-  screenGotoxy(35, 22);
+  screenGotoxy(12, 22);
   printf("Placar :");
-
-  screenGotoxy(34, 23);
+  screenGotoxy(11, 23);
   printf("       ");
-  screenGotoxy(39, 23);
+  screenGotoxy(16, 23);
   printf("%d", placar);
-}
 
-void AdicionarSnake(struct Snakenode **head, int x, int y) {
+  screenGotoxy(32, 22);
+  printf(" tempo vivo :");
+  screenGotoxy(31, 23);
+  printf("       ");
+  screenGotoxy(36, 23);
+  printf("%d",  temp1o);
+
+  screenGotoxy(57, 22);
+  printf("Recorde :");
+  screenGotoxy(56, 23);
+  printf("       ");
+  screenGotoxy(61, 23);
+  printf("%d", recorde);
+}
+//começa: 2   acaba: 78
+void addcobra(struct noparacobra **head, int x, int y) {
   if (*head == NULL) {
-    *head = (struct Snakenode *)malloc(sizeof(struct Snakenode));
+    *head = (struct noparacobra *)malloc(sizeof(struct noparacobra));
     (*head)->Xno = x;
     (*head)->Yno = y;
     (*head)->next = NULL;
-  } else {
-    struct Snakenode *n = *head;
-    struct Snakenode *novo =
-        (struct Snakenode *)malloc(sizeof(struct Snakenode));
+  } 
+  else {
+    struct noparacobra *n = *head;
+    struct noparacobra *novo =
+        (struct noparacobra *)malloc(sizeof(struct noparacobra));
     novo->Xno = x;
     novo->Yno = y;
     while (n->next != NULL) {
@@ -191,8 +217,8 @@ void AdicionarSnake(struct Snakenode **head, int x, int y) {
   }
 }
 
-void printSnake(struct Snakenode *head) {
-  struct Snakenode *n = head;
+void printcobra(struct noparacobra *head) {
+  struct noparacobra *n = head;
   while (n != NULL) {
     screenSetColor(GREEN, DARKGRAY);
     screenGotoxy(n->Xno, n->Yno);
@@ -201,8 +227,8 @@ void printSnake(struct Snakenode *head) {
   }
 }
 
-void LimparSnake(struct Snakenode *head) {
-  struct Snakenode *n = head;
+void atualizarcobra(struct noparacobra *head) {
+  struct noparacobra *n = head;
   while (n != NULL) {
     screenGotoxy(n->Xno, n->Yno);
     printf(" ");
@@ -210,18 +236,18 @@ void LimparSnake(struct Snakenode *head) {
   }
 }
 
-void FreeSnake(struct Snakenode **head) {
-  struct Snakenode *n = *head;
+void freecobra(struct noparacobra **head) {
+  struct noparacobra *n = *head;
   while (n != NULL) {
-    struct Snakenode *temp = n;
+    struct noparacobra * temp1 = n;
     n = n->next;
-    free(temp);
+    free( temp1);
   }
 }
 
-void MoveSnake(struct Snakenode **head, int x, int y) {
-  struct Snakenode *newHead =
-      (struct Snakenode *)malloc(sizeof(struct Snakenode));
+void cobrandando(struct noparacobra **head, int x, int y) {
+  struct noparacobra *newHead =
+      (struct noparacobra *)malloc(sizeof(struct noparacobra));
   if (newHead == NULL) {
     // Tratamento de erro, se a alocação de memória falhar
     exit(1);
@@ -233,23 +259,23 @@ void MoveSnake(struct Snakenode **head, int x, int y) {
   *head = newHead;
 
   // Remover a última parte da cauda
-  struct Snakenode *temp = *head;
-  while (temp->next->next != NULL) {
-    temp = temp->next;
+  struct noparacobra * temp1 = *head;
+  while ( temp1->next->next != NULL) {
+     temp1 =  temp1->next;
   }
 
-  free(temp->next);
-  temp->next = NULL;
+  free( temp1->next);
+   temp1->next = NULL;
 }
 
-void PrintMaca(int x, int y) {
+void printfruta(int x, int y) {
   screenSetColor(RED, DARKGRAY);
   screenGotoxy(x, y);
   printf("O");
 }
 
-int ColisaoCorpo(struct Snakenode *head, int x, int y) {
-  struct Snakenode *n = head;
+int baternocorpo(struct noparacobra *head, int x, int y) {
+  struct noparacobra *n = head;
   while (n != NULL) {
     if (n->Xno == x && n->Yno == y) {
       return 1; // Colisão com o corpo
@@ -259,71 +285,67 @@ int ColisaoCorpo(struct Snakenode *head, int x, int y) {
   return 0; // Sem colisão
 }
 
-void ProxMaca(int *x, int *y) {
+void randonmaca(int *x, int *y) {
   *x = rand() % 68 + 8;
   *y = rand() % 16 + 4;
 }
 
-void OrdenarLista(struct Highscore **cabeca, struct Jogador nick) {
+void rankingemordem(struct ranking **cabeca, struct Jogador nick) {
   if (*cabeca == NULL) {
-    *cabeca = (struct Highscore *)malloc(sizeof(struct Highscore));
+    *cabeca = (struct ranking *)malloc(sizeof(struct ranking));
     (*cabeca)->jogador = nick;
     (*cabeca)->next = NULL;
-  } else {
-    struct Highscore *n = *cabeca;
-    struct Highscore *novo = (struct Highscore *)malloc(sizeof(struct Highscore));
+  } 
+  else {
+    struct ranking *n = *cabeca;
+    struct ranking *novo = (struct ranking *)malloc(sizeof(struct ranking));
     novo->jogador = nick;
-    while (n->next != NULL && nick.score
- < n->next->jogador.score
-) {
+    while (n->next != NULL && nick.score < n->next->jogador.score) {
       n = n->next;
     }
-    if (nick.score
- > (*cabeca)->jogador.score
-) {
+    if (nick.score > (*cabeca)->jogador.score) {
       novo->next = *cabeca;
       *cabeca = novo;
-    } else if (n->next == NULL) {
+    } 
+    else if (n->next == NULL) {
       novo->next = NULL;
       n->next = novo;
-    } else {
+    } 
+    else {
       novo->next = n->next;
       n->next = novo;
     }
   }
 }
 
-void EscreverLista(struct Highscore *cabeca, FILE *in) {
-  struct Highscore *n = cabeca;
+void addnoranking(struct ranking *cabeca, FILE *in) {
+  struct ranking *temp = cabeca;
   struct Jogador Ojogador;
-  while (n != NULL) {
-    Ojogador = n->jogador;
+  while (temp != NULL) {
+    Ojogador = temp->jogador;
     if (fwrite(&Ojogador, sizeof(struct Jogador), 1, in) != 1) {
       break;
     }
-    n = n->next;
+    temp = temp->next;
   }
 }
 
-void PrintarLista(struct Highscore *cabeca) {
-  struct Highscore *n = cabeca;
+void printranking(struct ranking *cabeca) {
+  struct ranking *temp = cabeca;
   struct Jogador Ojogador;
-  int i = 1;
-  while (n != NULL && (i < 4)) {
-    printf("%d colocado!:\n", i);
-    printf("Nome: %s\n", n->jogador.Nome);
-    printf("Pontuação: %d\n", n->jogador.score
-);
-    n = n->next;
-    i++;
+  int cont = 0;
+  while (temp != NULL && (cont < 3)) {
+    printf("%d° colocado: %d pontos -> %s\n", cont+1, temp->jogador.score, temp->jogador.nome);
+    temp = temp->next;
+    cont++;
   }
 }
 
-void FreeLista(struct Highscore **head) {
-  struct Highscore *n = *head;
-  while (n != NULL) {
-    struct Highscore *temp = n;
-    n = n->next;
-    free(temp);
+void freeranking(struct ranking **head) {
+  struct ranking *temp = *head;
+  while (temp != NULL) {
+    struct ranking * temp1 = temp;
+    temp = temp->next;
+    free( temp1);
   }
 }
