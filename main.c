@@ -33,144 +33,8 @@ struct ranking {
   struct ranking *next;
 };
 
-void printembaixo(int placar, int recorde, int  temp1o);
-void addcobra(struct noparacobra **head, int x, int y);
-void printcobra(struct noparacobra *head);
-void atualizarcobra(struct noparacobra *head);
-void freecobra(struct noparacobra **head);
-void cobrandando(struct noparacobra **head, int x, int y);
-void printfruta(int x, int y);
-int baternocorpo(struct noparacobra *head, int x, int y);
-void randonmaca(int *x, int *y);
-void rankingemordem(struct ranking **cabeca, struct Jogador nick);
-void addnoranking(struct ranking *cabeca, FILE *in);
-void printranking(struct ranking *cabeca);
-void freeranking(struct ranking **head);
-
 int incX = 1, incY = 1;
 
-int main() {
-  struct noparacobra *head = NULL;
-  static int ch = 0;
-  int placar = 0;
-  int dirX = 1, dirY = 0; // Inicialmente movendo para a direita
-  FILE *in;
-  struct Jogador player;
-  printf("🐍🍎 SNAKE GAME 🍎🐍\n");
-  printf("Digite seu nick para ser salvo no ranking: ");
-  scanf("%s", player.nome);
-
-  screenInit(1);
-  keyboardInit();
-  timerInit(50);
-
-  addcobra(&head, 34, 12);
-  srand((unsigned int)time(NULL));
-  int PosMacaX = rand() % 68 + 8, PosMacaY = rand() % 16 + 4;
-  printfruta(PosMacaX, PosMacaY);
-  screenUpdate();
-
-  int recorde = INT_MIN; // definido no <limits.h>
-  in = fopen("placar.txt", "r");
-  if (in != NULL) {
-    while (fread(&player, sizeof(struct Jogador), 1, in) == 1) {
-      if (player.score > recorde) {
-        recorde = player.score;
-      }
-    }
-    fclose(in);
-  }
-
-  time_t start_time, current_time;
-  int  temp1o = 0;
-  start_time = time(NULL);
-
-  while (ch != KEY_ESC) {
-    if (keyhit()) {
-      ch = readch();
-      // Atualizar direção com base na tecla de seta
-      switch (ch) {
-      case KEY_W:
-        if (dirY != 1) {
-          dirX = 0;
-          dirY = -1;
-        }
-        break;
-      case KEY_S:
-        if (dirY != -1) {
-          dirX = 0;
-          dirY = 1;
-        }
-        break;
-      case KEY_A:
-        if (dirX != 1) {
-          dirX = -1;
-          dirY = 0;
-        }
-        break;
-      case KEY_D:
-        if (dirX != -1) {
-          dirX = 1;
-          dirY = 0;
-        }
-        break;
-      }
-      screenUpdate();
-    }
-
-    if (timerTimeOver() == 1) {
-      int newX = head->Xno + dirX;
-      int newY = head->Yno + dirY;
-
-      // Verifica colisão
-      if (newX >= (MAXX) || newX <= MINX || newY >= MAXY || newY <= MINY) {
-        break; // Colisão com a parede
-      }
-
-      if (baternocorpo(head, newX, newY) == 1) {
-        break; // Colisão com o próprio corpo
-      }
-
-      if (newX == PosMacaX && newY == PosMacaY) {
-        addcobra(&head, PosMacaX, PosMacaY);
-        randonmaca(&PosMacaX, &PosMacaY);
-        printfruta(PosMacaX, PosMacaY);
-        placar++;
-      }
-      // Mover a cobra
-      atualizarcobra(head); // Limpa a posição anterior
-      cobrandando(&head, newX, newY);
-      printcobra(head); // Desenha a cobra na nova posição
-      screenUpdate();
-      printembaixo(placar, recorde,  temp1o);
-    }
-
-    current_time = time(NULL);
-     temp1o = difftime(current_time, start_time);
-  }
-
-  freecobra(&head);
-  keyboardDestroy();
-  screenDestroy();
-  player.score = placar;
-  in = fopen("placar.txt", "a"); // começo placar
-  fwrite(&player, sizeof(struct Jogador), 1, in);
-  fclose(in);
-  struct ranking *lista = NULL;
-  in = fopen("placar.txt", "r");
-  while (fread(&player, sizeof(struct Jogador), 1, in) == 1) {
-    rankingemordem(&lista, player);
-  }
-  fclose(in);
-  in = fopen("placar.txt", "w");
-  addnoranking(lista, in);
-  fclose(in);
-  printranking(lista);
-  freeranking(&lista); // fim do placar
-  timerDestroy();
-
-  return 0;
-}
 
 void printembaixo(int placar, int recorde, int  temp1o) {
   screenSetColor(YELLOW, DARKGRAY);
@@ -348,4 +212,127 @@ void freeranking(struct ranking **head) {
     temp = temp->next;
     free( temp1);
   }
+}
+
+int main() {
+  struct noparacobra *head = NULL;
+  static int ch = 0;
+  int placar = 0;
+  int dirX = 1, dirY = 0; // Inicialmente movendo para a direita
+  FILE *in;
+  struct Jogador player;
+  printf("          🐍🍎 SNAKE GAME 🍎🐍\n");
+  printf("Digite seu nick para ser salvo no ranking: ");
+  scanf("%s", player.nome);
+
+  screenInit(1);
+  keyboardInit();
+  timerInit(80);
+
+  addcobra(&head, 34, 12);
+  srand((unsigned int)time(NULL));
+  int PosMacaX = rand() % 68 + 8, PosMacaY = rand() % 16 + 4;
+  printfruta(PosMacaX, PosMacaY);
+  screenUpdate();
+
+  int recorde = INT_MIN; // definido no <limits.h>
+  in = fopen("placar.txt", "r");
+  if (in != NULL) {
+    while (fread(&player, sizeof(struct Jogador), 1, in) == 1) {
+      if (player.score > recorde) {
+        recorde = player.score;
+      }
+    }
+    fclose(in);
+  }
+
+  time_t start_time, current_time;
+  int  temp1o = 0;
+  start_time = time(NULL);
+
+  while (ch != KEY_ESC) {
+    if (keyhit()) {
+      ch = readch();
+      // Atualizar direção com base na tecla de seta
+      switch (ch) {
+      case KEY_W:
+        if (dirY != 1) {
+          dirX = 0;
+          dirY = -1;
+        }
+        break;
+      case KEY_S:
+        if (dirY != -1) {
+          dirX = 0;
+          dirY = 1;
+        }
+        break;
+      case KEY_A:
+        if (dirX != 1) {
+          dirX = -1;
+          dirY = 0;
+        }
+        break;
+      case KEY_D:
+        if (dirX != -1) {
+          dirX = 1;
+          dirY = 0;
+        }
+        break;
+      }
+      screenUpdate();
+    }
+
+    if (timerTimeOver() == 1) {
+      int newX = head->Xno + dirX;
+      int newY = head->Yno + dirY;
+
+      // Verifica colisão
+      if (newX >= (MAXX) || newX <= MINX || newY >= MAXY || newY <= MINY) {
+        break; // Colisão com a parede
+      }
+
+      if (baternocorpo(head, newX, newY) == 1) {
+        break; // Colisão com o próprio corpo
+      }
+
+      if (newX == PosMacaX && newY == PosMacaY) {
+        addcobra(&head, PosMacaX, PosMacaY);
+        randonmaca(&PosMacaX, &PosMacaY);
+        printfruta(PosMacaX, PosMacaY);
+        placar++;
+      }
+      // Mover a cobra
+      atualizarcobra(head); // Limpa a posição anterior
+      cobrandando(&head, newX, newY);
+      printcobra(head); // Desenha a cobra na nova posição
+      screenUpdate();
+      printembaixo(placar, recorde,  temp1o);
+    }
+
+    current_time = time(NULL);
+     temp1o = difftime(current_time, start_time);
+  }
+
+  freecobra(&head);
+  keyboardDestroy();
+  screenDestroy();
+  player.score = placar;
+  in = fopen("placar.txt", "a"); // começo placar
+  fwrite(&player, sizeof(struct Jogador), 1, in);
+  fclose(in);
+  struct ranking *lista = NULL;
+  in = fopen("placar.txt", "r");
+  while (fread(&player, sizeof(struct Jogador), 1, in) == 1) {
+    rankingemordem(&lista, player);
+  }
+  fclose(in);
+  in = fopen("placar.txt", "w");
+  addnoranking(lista, in);
+  fclose(in);
+  printranking(lista);
+  freeranking(&lista); // fim do placar
+  timerDestroy();
+
+  return 0;
 }
