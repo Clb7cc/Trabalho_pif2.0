@@ -35,8 +35,7 @@ struct ranking {
 
 int incX = 1, incY = 1;
 
-
-void printembaixo(int placar, int recorde, int  temp1o) {
+void printembaixo(int placar, int recorde, int  tempo) {
   screenSetColor(YELLOW, DARKGRAY);
   screenGotoxy(12, 22);
   printf("Placar :");
@@ -44,14 +43,12 @@ void printembaixo(int placar, int recorde, int  temp1o) {
   printf("       ");
   screenGotoxy(16, 23);
   printf("%d", placar);
-
   screenGotoxy(32, 22);
   printf(" tempo vivo :");
   screenGotoxy(31, 23);
   printf("       ");
   screenGotoxy(36, 23);
-  printf("%d",  temp1o);
-
+  printf("%d",  tempo);
   screenGotoxy(57, 22);
   printf("Recorde :");
   screenGotoxy(56, 23);
@@ -59,7 +56,7 @@ void printembaixo(int placar, int recorde, int  temp1o) {
   screenGotoxy(61, 23);
   printf("%d", recorde);
 }
-//começa: 2   acaba: 78
+
 void addcobra(struct noparacobra **head, int x, int y) {
   if (*head == NULL) {
     *head = (struct noparacobra *)malloc(sizeof(struct noparacobra));
@@ -113,7 +110,6 @@ void cobrandando(struct noparacobra **head, int x, int y) {
   struct noparacobra *newHead =
       (struct noparacobra *)malloc(sizeof(struct noparacobra));
   if (newHead == NULL) {
-    // Tratamento de erro, se a alocação de memória falhar
     exit(1);
   }
 
@@ -122,7 +118,6 @@ void cobrandando(struct noparacobra **head, int x, int y) {
   newHead->next = *head;
   *head = newHead;
 
-  // Remover a última parte da cauda
   struct noparacobra * temp1 = *head;
   while ( temp1->next->next != NULL) {
      temp1 =  temp1->next;
@@ -142,11 +137,11 @@ int baternocorpo(struct noparacobra *head, int x, int y) {
   struct noparacobra *n = head;
   while (n != NULL) {
     if (n->Xno == x && n->Yno == y) {
-      return 1; // Colisão com o corpo
+      return 1;
     }
     n = n->next;
   }
-  return 0; // Sem colisão
+  return 0;
 }
 
 void randonmaca(int *x, int *y) {
@@ -218,7 +213,7 @@ int main() {
   struct noparacobra *head = NULL;
   static int ch = 0;
   int placar = 0;
-  int dirX = 1, dirY = 0; // Inicialmente movendo para a direita
+  int dirX = 1, dirY = 0;
   FILE *in;
   struct Jogador player;
   printf("          🐍🍎 SNAKE GAME 🍎🐍\n");
@@ -235,7 +230,7 @@ int main() {
   printfruta(PosMacaX, PosMacaY);
   screenUpdate();
 
-  int recorde = INT_MIN; // definido no <limits.h>
+  int recorde = INT_MIN;
   in = fopen("placar.txt", "r");
   if (in != NULL) {
     while (fread(&player, sizeof(struct Jogador), 1, in) == 1) {
@@ -247,13 +242,12 @@ int main() {
   }
 
   time_t start_time, current_time;
-  int  temp1o = 0;
+  int  tempo = 0;
   start_time = time(NULL);
 
-  while (ch != KEY_ESC) {
+while (ch != KEY_ESC) {
     if (keyhit()) {
       ch = readch();
-      // Atualizar direção com base na tecla de seta
       switch (ch) {
       case KEY_W:
         if (dirY != 1) {
@@ -282,43 +276,35 @@ int main() {
       }
       screenUpdate();
     }
-
     if (timerTimeOver() == 1) {
       int newX = head->Xno + dirX;
       int newY = head->Yno + dirY;
-
-      // Verifica colisão
       if (newX >= (MAXX) || newX <= MINX || newY >= MAXY || newY <= MINY) {
-        break; // Colisão com a parede
+        break;
       }
-
       if (baternocorpo(head, newX, newY) == 1) {
-        break; // Colisão com o próprio corpo
+        break;
       }
-
       if (newX == PosMacaX && newY == PosMacaY) {
         addcobra(&head, PosMacaX, PosMacaY);
         randonmaca(&PosMacaX, &PosMacaY);
         printfruta(PosMacaX, PosMacaY);
         placar++;
       }
-      // Mover a cobra
-      atualizarcobra(head); // Limpa a posição anterior
+      atualizarcobra(head);
       cobrandando(&head, newX, newY);
-      printcobra(head); // Desenha a cobra na nova posição
+      printcobra(head);
       screenUpdate();
-      printembaixo(placar, recorde,  temp1o);
+      printembaixo(placar, recorde,  tempo);
     }
-
     current_time = time(NULL);
-     temp1o = difftime(current_time, start_time);
+    tempo = difftime(current_time, start_time);
   }
-
   freecobra(&head);
   keyboardDestroy();
   screenDestroy();
   player.score = placar;
-  in = fopen("placar.txt", "a"); // começo placar
+  in = fopen("placar.txt", "a");
   fwrite(&player, sizeof(struct Jogador), 1, in);
   fclose(in);
   struct ranking *lista = NULL;
@@ -331,7 +317,7 @@ int main() {
   addnoranking(lista, in);
   fclose(in);
   printranking(lista);
-  freeranking(&lista); // fim do placar
+  freeranking(&lista);
   timerDestroy();
 
   return 0;
