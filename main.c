@@ -23,37 +23,30 @@ struct noparacobra {
   struct noparacobra *next;
 };
 
-struct Jogador {
-  char nome[11];
-  int score;
-};
-
 struct ranking {
-  struct Jogador jogador;
+  int score;
   struct ranking *next;
 };
 
-int incX = 1, incY = 1;
-
-void printembaixo(int placar, int recorde, int  tempo) {
+void printembaixo(int placar, int recorde, int tempo) {
   screenSetColor(YELLOW, DARKGRAY);
-  screenGotoxy(12, 22);
+  screenGotoxy(7, 13);
   printf("Placar :");
-  screenGotoxy(11, 23);
+  screenGotoxy(6, 14);
   printf("       ");
-  screenGotoxy(16, 23);
+  screenGotoxy(11, 14);
   printf("%d", placar);
-  screenGotoxy(32, 22);
+  screenGotoxy(18, 13);
   printf(" tempo vivo :");
-  screenGotoxy(31, 23);
+  screenGotoxy(17, 14);
   printf("       ");
-  screenGotoxy(36, 23);
-  printf("%d",  tempo);
-  screenGotoxy(57, 22);
+  screenGotoxy(22, 14);
+  printf("%d", tempo);
+  screenGotoxy(35, 13);
   printf("Recorde :");
-  screenGotoxy(56, 23);
+  screenGotoxy(34, 14);
   printf("       ");
-  screenGotoxy(61, 23);
+  screenGotoxy(39, 14);
   printf("%d", recorde);
 }
 
@@ -65,50 +58,48 @@ void addcobra(struct noparacobra **head, int x, int y) {
     (*head)->next = NULL;
   } 
   else {
-    struct noparacobra *n = *head;
-    struct noparacobra *novo =
-        (struct noparacobra *)malloc(sizeof(struct noparacobra));
+    struct noparacobra *temp2 = *head;
+    struct noparacobra *novo = (struct noparacobra *)malloc(sizeof(struct noparacobra));
     novo->Xno = x;
     novo->Yno = y;
-    while (n->next != NULL) {
-      n = n->next;
+    while (temp2->next != NULL) {
+      temp2 = temp2->next;
     }
     novo->next = NULL;
-    n->next = novo;
+    temp2->next = novo;
   }
 }
 
 void printcobra(struct noparacobra *head) {
-  struct noparacobra *n = head;
-  while (n != NULL) {
+  struct noparacobra *temp2 = head;
+  while (temp2 != NULL) {
     screenSetColor(GREEN, DARKGRAY);
-    screenGotoxy(n->Xno, n->Yno);
+    screenGotoxy(temp2->Xno, temp2->Yno);
     printf("I");
-    n = n->next;
+    temp2 = temp2->next;
   }
 }
 
 void atualizarcobra(struct noparacobra *head) {
-  struct noparacobra *n = head;
-  while (n != NULL) {
-    screenGotoxy(n->Xno, n->Yno);
+  struct noparacobra *temp2 = head;
+  while (temp2 != NULL) {
+    screenGotoxy(temp2->Xno, temp2->Yno);
     printf(" ");
-    n = n->next;
+    temp2 = temp2->next;
   }
 }
 
 void freecobra(struct noparacobra **head) {
-  struct noparacobra *n = *head;
-  while (n != NULL) {
-    struct noparacobra * temp1 = n;
-    n = n->next;
-    free( temp1);
+  struct noparacobra *temp2 = *head;
+  while (temp2 != NULL) {
+    struct noparacobra *temp1 = temp2;
+    temp2 = temp2->next;
+    free(temp1);
   }
 }
 
 void cobrandando(struct noparacobra **head, int x, int y) {
-  struct noparacobra *newHead =
-      (struct noparacobra *)malloc(sizeof(struct noparacobra));
+  struct noparacobra *newHead = (struct noparacobra *)malloc(sizeof(struct noparacobra));
   if (newHead == NULL) {
     exit(1);
   }
@@ -118,71 +109,53 @@ void cobrandando(struct noparacobra **head, int x, int y) {
   newHead->next = *head;
   *head = newHead;
 
-  struct noparacobra * temp1 = *head;
-  while ( temp1->next->next != NULL) {
-     temp1 =  temp1->next;
+  struct noparacobra *temp1 = *head;
+  while (temp1->next->next != NULL) {
+    temp1 = temp1->next;
   }
 
-  free( temp1->next);
-   temp1->next = NULL;
+  free(temp1->next);
+  temp1->next = NULL;
 }
 
-void printfruta(int x, int y) {
+void printmaca(int x, int y) {
   screenSetColor(RED, DARKGRAY);
   screenGotoxy(x, y);
   printf("O");
 }
 
 int baternocorpo(struct noparacobra *head, int x, int y) {
-  struct noparacobra *n = head;
-  while (n != NULL) {
-    if (n->Xno == x && n->Yno == y) {
+  struct noparacobra *temp2 = head;
+  while (temp2 != NULL) {
+    if (temp2->Xno == x && temp2->Yno == y) {
       return 1;
     }
-    n = n->next;
+    temp2 = temp2->next;
   }
   return 0;
 }
 
 void randonmaca(int *x, int *y) {
-  *x = rand() % 68 + 8;
-  *y = rand() % 16 + 4;
+  *x = rand() % (MAXX - MINX) + MINX;
+  *y = rand() % (MAXY - MINY) + MINY;
 }
 
-void rankingemordem(struct ranking **cabeca, struct Jogador nick) {
-  if (*cabeca == NULL) {
-    *cabeca = (struct ranking *)malloc(sizeof(struct ranking));
-    (*cabeca)->jogador = nick;
-    (*cabeca)->next = NULL;
-  } 
-  else {
-    struct ranking *n = *cabeca;
+void rankingemordem(struct ranking **cabeca, int score) {
+  if (*cabeca == NULL || score > (*cabeca)->score) {
     struct ranking *novo = (struct ranking *)malloc(sizeof(struct ranking));
-    novo->jogador = nick;
-    while (n->next != NULL && nick.score < n->next->jogador.score) {
-      n = n->next;
-    }
-    if (nick.score > (*cabeca)->jogador.score) {
-      novo->next = *cabeca;
-      *cabeca = novo;
-    } 
-    else if (n->next == NULL) {
-      novo->next = NULL;
-      n->next = novo;
-    } 
-    else {
-      novo->next = n->next;
-      n->next = novo;
-    }
+    novo->score = score;
+    novo->next = *cabeca;
+    *cabeca = novo;
+  } else {
+    rankingemordem(&((*cabeca)->next), score);
   }
 }
 
 void addnoranking(struct ranking *cabeca, FILE *in) {
   struct ranking *temp = cabeca;
-  struct Jogador Ojogador;
   while (temp != NULL) {
-    Ojogador = temp->jogador;
-    if (fwrite(&Ojogador, sizeof(struct Jogador), 1, in) != 1) {
+    int score = temp->score;
+    if (fwrite(&score, sizeof(int), 1, in) != 1) {
       break;
     }
     temp = temp->next;
@@ -191,21 +164,20 @@ void addnoranking(struct ranking *cabeca, FILE *in) {
 
 void printranking(struct ranking *cabeca) {
   struct ranking *temp = cabeca;
-  struct Jogador Ojogador;
   int cont = 0;
   while (temp != NULL && (cont < 3)) {
-    printf("%d° colocado: %d pontos -> %s\n", cont+1, temp->jogador.score, temp->jogador.nome);
+    printf("%d° colocado: %d pontos\n", cont + 1, temp->score);
     temp = temp->next;
     cont++;
   }
 }
 
 void freeranking(struct ranking **head) {
-  struct ranking *temp = *head;
-  while (temp != NULL) {
-    struct ranking * temp1 = temp;
-    temp = temp->next;
-    free( temp1);
+  struct ranking *temp2 = *head;
+  while (temp2 != NULL) {
+    struct ranking *temp1 = temp2;
+    temp2 = temp2->next;
+    free(temp1);
   }
 }
 
@@ -215,37 +187,36 @@ int main() {
   int placar = 0;
   int dirX = 1, dirY = 0;
   FILE *in;
-  struct Jogador player;
   printf("          🐍🍎 SNAKE GAME 🍎🐍\n");
-  printf("Digite seu nick para ser salvo no ranking: ");
-  scanf("%s", player.nome);
 
   screenInit(1);
   keyboardInit();
   timerInit(80);
 
-  addcobra(&head, 34, 12);
+  addcobra(&head, 25, 7);
   srand((unsigned int)time(NULL));
-  int PosMacaX = rand() % 68 + 8, PosMacaY = rand() % 16 + 4;
-  printfruta(PosMacaX, PosMacaY);
+  int PosMacaX = rand() % (MAXX - MINX) + MINX, PosMacaY = rand() % (MAXY - MINY) + MINY;
+  printmaca(PosMacaX, PosMacaY);
   screenUpdate();
 
   int recorde = INT_MIN;
-  in = fopen("placar.txt", "r");
+  in = fopen("rankfile.txt", "r");
   if (in != NULL) {
-    while (fread(&player, sizeof(struct Jogador), 1, in) == 1) {
-      if (player.score > recorde) {
-        recorde = player.score;
+    while (fread(&recorde, sizeof(int), 1, in) == 1) {
+      if (placar > recorde) {
+        recorde = placar;
       }
     }
     fclose(in);
+  } else {
+    recorde = 0;
   }
 
-  time_t start_time, current_time;
-  int  tempo = 0;
-  start_time = time(NULL);
+  time_t tempoinicial, tempovivo;
+  int tempo = 0;
+  tempoinicial = time(NULL);
 
-while (ch != KEY_ESC) {
+  while (ch != KEY_ESC) {
     if (keyhit()) {
       ch = readch();
       switch (ch) {
@@ -288,32 +259,31 @@ while (ch != KEY_ESC) {
       if (newX == PosMacaX && newY == PosMacaY) {
         addcobra(&head, PosMacaX, PosMacaY);
         randonmaca(&PosMacaX, &PosMacaY);
-        printfruta(PosMacaX, PosMacaY);
+        printmaca(PosMacaX, PosMacaY);
         placar++;
       }
       atualizarcobra(head);
       cobrandando(&head, newX, newY);
       printcobra(head);
       screenUpdate();
-      printembaixo(placar, recorde,  tempo);
+      printembaixo(placar, recorde, tempo);
     }
-    current_time = time(NULL);
-    tempo = difftime(current_time, start_time);
+    tempovivo = time(NULL);
+    tempo = difftime(tempovivo, tempoinicial);
   }
   freecobra(&head);
   keyboardDestroy();
   screenDestroy();
-  player.score = placar;
-  in = fopen("placar.txt", "a");
-  fwrite(&player, sizeof(struct Jogador), 1, in);
+  in = fopen("rankfile.txt", "a");
+  fwrite(&placar, sizeof(int), 1, in);
   fclose(in);
   struct ranking *lista = NULL;
-  in = fopen("placar.txt", "r");
-  while (fread(&player, sizeof(struct Jogador), 1, in) == 1) {
-    rankingemordem(&lista, player);
+  in = fopen("rankfile.txt", "r");
+  while (fread(&placar, sizeof(int), 1, in) == 1) {
+    rankingemordem(&lista, placar);
   }
   fclose(in);
-  in = fopen("placar.txt", "w");
+  in = fopen("rankfile.txt", "w");
   addnoranking(lista, in);
   fclose(in);
   printranking(lista);

@@ -7,11 +7,11 @@
 
 enum {
   KEY_ESC = 27,
-  KEY_ENTER = 13,
-  ARROW_UP = 256 + 72,
-  ARROW_DOWN = 256 + 80,
-  ARROW_LEFT = 256 + 75,
-  ARROW_RIGHT = 256 + 77
+  KEY_ENTER = 10,
+  KEY_W = 119,
+  KEY_S = 115,
+  KEY_A = 97,
+  KEY_D = 100
 };
 
 #include <termios.h>
