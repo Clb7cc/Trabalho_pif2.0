@@ -34,19 +34,19 @@ void printembaixo(int placar, int recorde, int tempo) {
   printf("Placar :");
   screenGotoxy(6, 14);
   printf("       ");
-  screenGotoxy(11, 14);
+  screenGotoxy(9, 14);
   printf("%d", placar);
   screenGotoxy(18, 13);
   printf(" tempo vivo :");
   screenGotoxy(17, 14);
   printf("       ");
-  screenGotoxy(22, 14);
+  screenGotoxy(24, 14);
   printf("%d", tempo);
   screenGotoxy(35, 13);
   printf("Recorde :");
   screenGotoxy(34, 14);
   printf("       ");
-  screenGotoxy(39, 14);
+  screenGotoxy(37, 14);
   printf("%d", recorde);
 }
 
@@ -136,8 +136,8 @@ int baternocorpo(struct noparacobra *head, int x, int y) {
 }
 
 void randonmaca(int *x, int *y) {
-  *x = rand() % (MAXX - MINX) + MINX;
-  *y = rand() % (MAXY - MINY) + MINY;
+  *x = rand() % (MAXX - MINX - 1) + MINX + 1;
+  *y = rand() % (MAXY - MINY - 1) + MINY + 1;
 }
 
 void rankingemordem(struct ranking **cabeca, int score) {
@@ -199,17 +199,15 @@ int main() {
   printmaca(PosMacaX, PosMacaY);
   screenUpdate();
 
-  int recorde = INT_MIN;
+  int recorde = 0;
   in = fopen("rankfile.txt", "r");
   if (in != NULL) {
-    while (fread(&recorde, sizeof(int), 1, in) == 1) {
+    while (fread(&placar, sizeof(int), 1, in) == 1) {
       if (placar > recorde) {
         recorde = placar;
       }
     }
     fclose(in);
-  } else {
-    recorde = 0;
   }
 
   time_t tempoinicial, tempovivo;
