@@ -138,6 +138,12 @@ int baternocorpo(struct noparacobra *head, int x, int y) {
 void randonmaca(int *x, int *y) {
   *x = rand() % (MAXX - MINX - 1) + MINX + 1;
   *y = rand() % (MAXY - MINY - 1) + MINY + 1;
+  int naogerex = 6;
+  int naogerey = 38;
+  while ((*x <= naogerex || *y >= naogerey) || (*x >= 6 && *x <= 43 && *y >= 13 && *y <= 14)) {
+    *x = rand() % (MAXX - MINX - 1) + MINX + 1;
+    *y = rand() % (MAXY - MINY - 1) + MINY + 1;
+  }
 }
 
 void rankingemordem(struct ranking **cabeca, int score) {
@@ -182,12 +188,13 @@ void freeranking(struct ranking **head) {
 }
 
 int main() {
+  printf("          🐍🍎 SNAKE GAME 🍎🐍\n\n\n              Carregando...\n");
+  sleep(3);
   struct noparacobra *head = NULL;
   static int ch = 0;
   int placar = 0;
   int dirX = 1, dirY = 0;
   FILE *in;
-  printf("          🐍🍎 SNAKE GAME 🍎🐍\n");
 
   screenInit(1);
   keyboardInit();

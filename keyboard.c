@@ -5,15 +5,6 @@
  * Based on "From C to C++ course - 2002"
  */
 
-enum {
-  KEY_ESC = 27,
-  KEY_ENTER = 10,
-  KEY_W = 119,
-  KEY_S = 115,
-  KEY_A = 97,
-  KEY_D = 100
-};
-
 #include <termios.h>
 #include <unistd.h>
 
