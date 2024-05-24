@@ -30,24 +30,17 @@ struct ranking {
 
 void printembaixo(int placar, int recorde, int tempo) {
   screenSetColor(YELLOW, DARKGRAY);
-  screenGotoxy(7, 13);
-  printf("Placar :");
-  screenGotoxy(6, 14);
-  printf("       ");
-  screenGotoxy(9, 14);
-  printf("%d", placar);
-  screenGotoxy(18, 13);
-  printf(" tempo vivo :");
-  screenGotoxy(17, 14);
-  printf("       ");
-  screenGotoxy(24, 14);
-  printf("%d", tempo);
-  screenGotoxy(35, 13);
-  printf("Recorde :");
-  screenGotoxy(34, 14);
-  printf("       ");
-  screenGotoxy(37, 14);
-  printf("%d", recorde);
+  int offsetX = MAXX + 5;
+  int offsetY = MINY + 3;
+
+  screenGotoxy(offsetX, offsetY);
+  printf("| Placar : %d", placar);
+
+  screenGotoxy(offsetX, offsetY + 4);
+  printf("| Tempo vivo : %d", tempo);
+
+  screenGotoxy(offsetX, offsetY + 2);
+  printf("| Recorde : %d", recorde);
 }
 
 void addcobra(struct noparacobra **head, int x, int y) {
@@ -136,13 +129,13 @@ int baternocorpo(struct noparacobra *head, int x, int y) {
 }
 
 void randonmaca(int *x, int *y) {
-  *x = rand() % (MAXX - MINX - 1) + MINX + 1;
-  *y = rand() % (MAXY - MINY - 1) + MINY + 1;
+  *x = rand() % (MAXX - MINX) + MINX + 1;
+  *y = rand() % (MAXY - MINY) + MINY + 1;
   int naogerex = 6;
   int naogerey = 38;
-  while ((*x <= naogerex || *y >= naogerey) || (*x >= 6 && *x <= 43 && *y >= 13 && *y <= 14)) {
-    *x = rand() % (MAXX - MINX - 1) + MINX + 1;
-    *y = rand() % (MAXY - MINY - 1) + MINY + 1;
+  while ((*x < naogerex || *y > naogerey) || (*x > 6 && *x < 43 && *y > 13 && *y < 14)) {
+    *x = rand() % (MAXX - MINX ) + MINX + 1;
+    *y = rand() % (MAXY - MINY ) + MINY + 1;
   }
 }
 

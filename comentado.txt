@@ -34,24 +34,17 @@ struct ranking {
 // Função para imprimir informações na parte inferior da tela
 void printembaixo(int placar, int recorde, int tempo) {
   screenSetColor(YELLOW, DARKGRAY);
-  screenGotoxy(7, 13);
-  printf("Placar :");
-  screenGotoxy(6, 14);
-  printf("       ");
-  screenGotoxy(9, 14);
-  printf("%d", placar);
-  screenGotoxy(18, 13);
-  printf(" tempo vivo :");
-  screenGotoxy(17, 14);
-  printf("       ");
-  screenGotoxy(24, 14);
-  printf("%d", tempo);
-  screenGotoxy(35, 13);
-  printf("Recorde :");
-  screenGotoxy(34, 14);
-  printf("       ");
-  screenGotoxy(37, 14);
-  printf("%d", recorde);
+  int offsetX = MAXX + 5;
+  int offsetY = MINY + 3;
+
+  screenGotoxy(offsetX, offsetY);
+  printf("| Placar : %d", placar);
+
+  screenGotoxy(offsetX, offsetY + 4);
+  printf("| Tempo vivo : %d", tempo);
+
+  screenGotoxy(offsetX, offsetY + 2);
+  printf("| Recorde : %d", recorde);
 }
 
 // Função para adicionar um novo nó (parte do corpo) à cobra
