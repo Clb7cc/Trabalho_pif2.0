@@ -187,6 +187,63 @@ void freeranking(struct ranking **head) {
   }
 }
 
+void jogoLoop(struct noparacobra *head, int *dirX, int *dirY, int *placar, int *recorde, time_t tempoinicial, int PosMacaX, int PosMacaY) {
+  int ch = 0;
+  while (ch != KEY_ESC) {
+    if (keyhit()) {
+      ch = readch();
+      switch (ch) {
+        case KEY_W:
+          if (*dirY != 1) {
+            *dirX = 0;
+            *dirY = -1;
+          }
+          break;
+        case KEY_S:
+          if (*dirY != -1) {
+            *dirX = 0;
+            *dirY = 1;
+          }
+          break;
+        case KEY_A:
+          if (*dirX != 1) {
+            *dirX = -1;
+            *dirY = 0;
+          }
+          break;
+        case KEY_D:
+          if (*dirX != -1) {
+            *dirX = 1;
+            *dirY = 0;
+          }
+          break;
+      }
+      screenUpdate();
+    }
+    if (timerTimeOver() == 1) {
+      int newX = head->Xno + *dirX;
+      int newY = head->Yno + *dirY;
+      if (newX >= (MAXX) || newX <= MINX || newY >= MAXY || newY <= MINY) {
+        break;
+      }
+      if (baternocorpo(head, newX, newY) == 1) {
+        break;
+      }
+      if (newX == PosMacaX && newY == PosMacaY) {
+        addcobra(&head, PosMacaX, PosMacaY);
+        randonmaca(&PosMacaX, &PosMacaY);
+        printmaca(PosMacaX, PosMacaY);
+        (*placar)++;
+      }
+      atualizarcobra(head);
+      cobrandando(&head, newX, newY);
+      printcobra(head);
+      screenUpdate();
+      printembaixo(*placar, *recorde, (int)difftime(time(NULL), tempoinicial));
+    }
+  }
+}
+
 int main() {
   printf("          🐍🍎 SNAKE GAME 🍎🐍\n\n\n              Carregando...\n");
   sleep(3);
@@ -220,62 +277,7 @@ int main() {
   time_t tempoinicial, tempovivo;
   int tempo = 0;
   tempoinicial = time(NULL);
-
-  while (ch != KEY_ESC) {
-    if (keyhit()) {
-      ch = readch();
-      switch (ch) {
-      case KEY_W:
-        if (dirY != 1) {
-          dirX = 0;
-          dirY = -1;
-        }
-        break;
-      case KEY_S:
-        if (dirY != -1) {
-          dirX = 0;
-          dirY = 1;
-        }
-        break;
-      case KEY_A:
-        if (dirX != 1) {
-          dirX = -1;
-          dirY = 0;
-        }
-        break;
-      case KEY_D:
-        if (dirX != -1) {
-          dirX = 1;
-          dirY = 0;
-        }
-        break;
-      }
-      screenUpdate();
-    }
-    if (timerTimeOver() == 1) {
-      int newX = head->Xno + dirX;
-      int newY = head->Yno + dirY;
-      if (newX >= (MAXX) || newX <= MINX || newY >= MAXY || newY <= MINY) {
-        break;
-      }
-      if (baternocorpo(head, newX, newY) == 1) {
-        break;
-      }
-      if (newX == PosMacaX && newY == PosMacaY) {
-        addcobra(&head, PosMacaX, PosMacaY);
-        randonmaca(&PosMacaX, &PosMacaY);
-        printmaca(PosMacaX, PosMacaY);
-        placar++;
-      }
-      atualizarcobra(head);
-      cobrandando(&head, newX, newY);
-      printcobra(head);
-      screenUpdate();
-      printembaixo(placar, recorde, tempo);
-    }
-    tempovivo = time(NULL);
-    tempo = difftime(tempovivo, tempoinicial);
-  }
+  jogoLoop(head, &dirX, &dirY, &placar, &recorde, tempoinicial, PosMacaX, PosMacaY);
   freecobra(&head);
   keyboardDestroy();
   screenDestroy();
