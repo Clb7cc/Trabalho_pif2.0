@@ -10,7 +10,6 @@
 
 enum {
   KEY_ESC = 27,
-  KEY_ENTER = 10,
   KEY_W = 119,
   KEY_S = 115,
   KEY_A = 97,
@@ -36,11 +35,11 @@ void printembaixo(int placar, int recorde, int tempo) {
   screenGotoxy(offsetX, offsetY);
   printf("| Placar : %d", placar);
 
-  screenGotoxy(offsetX, offsetY + 4);
-  printf("| Tempo vivo : %d", tempo);
-
   screenGotoxy(offsetX, offsetY + 2);
   printf("| Recorde : %d", recorde);
+
+  screenGotoxy(offsetX, offsetY + 4);
+  printf("| Tempo vivo : %d", tempo);
 }
 
 void addcobra(struct noparacobra **head, int x, int y) {
@@ -139,19 +138,19 @@ void randonmaca(int *x, int *y) {
   }
 }
 
-void rankingemordem(struct ranking **cabeca, int score) {
-  if (*cabeca == NULL || score > (*cabeca)->score) {
+void rankingemordem(struct ranking **head, int score) {
+  if (*head == NULL || score > (*head)->score) {
     struct ranking *novo = (struct ranking *)malloc(sizeof(struct ranking));
     novo->score = score;
-    novo->next = *cabeca;
-    *cabeca = novo;
+    novo->next = *head;
+    *head = novo;
   } else {
-    rankingemordem(&((*cabeca)->next), score);
+    rankingemordem(&((*head)->next), score);
   }
 }
 
-void addnoranking(struct ranking *cabeca, FILE *in) {
-  struct ranking *temp = cabeca;
+void addnoranking(struct ranking *head, FILE *in) {
+  struct ranking *temp = head;
   while (temp != NULL) {
     int score = temp->score;
     if (fwrite(&score, sizeof(int), 1, in) != 1) {
@@ -161,8 +160,8 @@ void addnoranking(struct ranking *cabeca, FILE *in) {
   }
 }
 
-void printranking(struct ranking *cabeca) {
-  struct ranking *temp = cabeca;
+void printranking(struct ranking *head) {
+  struct ranking *temp = head;
   int cont = 0;
   while (temp != NULL && (cont < 3)) {
     printf("%d° colocado: %d pontos\n", cont + 1, temp->score);
