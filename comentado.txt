@@ -10,18 +10,17 @@
 
 // Definição dos códigos das teclas
 enum {
-  KEY_ESC = 27,
-  KEY_ENTER = 10,
-  KEY_W = 119,
-  KEY_S = 115,
-  KEY_A = 97,
-  KEY_D = 100
+  KEY_ESC = 27, //tecla ESC
+  KEY_W = 119, //tecla W
+  KEY_S = 115, //tecla S
+  KEY_A = 97, //tecla A
+  KEY_D = 100 //tecla D
 };
 
 // Estrutura de dados para os nós da cobra
 struct noparacobra {
-  int Xno;
-  int Yno;
+  int Xno; //armazena a posição X da cabeça da cobra
+  int Yno; //armazena a posição Y da cabeça da cobra
   struct noparacobra *next;
 };
 
@@ -33,38 +32,38 @@ struct ranking {
 
 // Função para imprimir informações na parte inferior da tela
 void printembaixo(int placar, int recorde, int tempo) {
-  screenSetColor(YELLOW, DARKGRAY);
-  int offsetX = MAXX + 5;
-  int offsetY = MINY + 3;
+  screenSetColor(YELLOW, DARKGRAY); //printa em amarelo com fundo cinza escuro
+  int offsetX = MAXX + 5; //soma 5 ao MAXX, tirando as informações da tela
+  int offsetY = MINY + 3; //soma 3 ao MINY, predefinindo para as configurações do placar
 
-  screenGotoxy(offsetX, offsetY);
+  screenGotoxy(offsetX, offsetY); //vai para offset X e Y
   printf("| Placar : %d", placar);
 
-  screenGotoxy(offsetX, offsetY + 4);
-  printf("| Tempo vivo : %d", tempo);
-
-  screenGotoxy(offsetX, offsetY + 2);
+  screenGotoxy(offsetX, offsetY + 2); //desce + 2 no Y em relação a placar
   printf("| Recorde : %d", recorde);
+
+  screenGotoxy(offsetX, offsetY + 4); //desce + 2 no Y em relação a recorde
+  printf("| Tempo vivo : %d", tempo);
 }
 
 // Função para adicionar um novo nó (parte do corpo) à cobra
 void addcobra(struct noparacobra **head, int x, int y) {
-  if (*head == NULL) {
+  if (*head == NULL) { //Se score for 0
     *head = (struct noparacobra *)malloc(sizeof(struct noparacobra));
-    (*head)->Xno = x;
-    (*head)->Yno = y;
-    (*head)->next = NULL;
+    (*head)->Xno = x; // Define a coordenada X do novo nó
+    (*head)->Yno = y; // Define a coordenada Y do novo nó
+    (*head)->next = NULL; // Define proximo como NULL
   } 
-  else {
-    struct noparacobra *temp2 = *head;
+  else { // se score não for 0
+    struct noparacobra *temp2 = *head; // Cria um ponteiro temporário apontando para a cabeça da cobra
     struct noparacobra *novo = (struct noparacobra *)malloc(sizeof(struct noparacobra));
     novo->Xno = x;
     novo->Yno = y;
-    while (temp2->next != NULL) {
+    while (temp2->next != NULL) { //Percorre todas as partes da cobra
       temp2 = temp2->next;
     }
     novo->next = NULL;
-    temp2->next = novo;
+    temp2->next = novo; // Adiciona o novo nó ao final da lista
   }
 }
 
@@ -152,20 +151,20 @@ void randonmaca(int *x, int *y) {
 }
 
 // Função para adicionar uma pontuação ao ranking
-void rankingemordem(struct ranking **cabeca, int score) {
-  if (*cabeca == NULL || score > (*cabeca)->score) {
+void rankingemordem(struct ranking **head, int score) {
+  if (*head == NULL || score > (*head)->score) {
     struct ranking *novo = (struct ranking *)malloc(sizeof(struct ranking));
     novo->score = score;
-    novo->next = *cabeca;
-    *cabeca = novo;
+    novo->next = *head;
+    *head = novo;
   } else {
-    rankingemordem(&((*cabeca)->next), score);
+    rankingemordem(&((*head)->next), score);
   }
 }
 
 // Função para adicionar as pontuações ao arquivo
-void addnoranking(struct ranking *cabeca, FILE *in) {
-  struct ranking *temp = cabeca;
+void addnoranking(struct ranking *head, FILE *in) {
+  struct ranking *temp = head;
   while (temp != NULL) {
     int score = temp->score;
     if (fwrite(&score, sizeof(int), 1, in) != 1) {
@@ -176,8 +175,8 @@ void addnoranking(struct ranking *cabeca, FILE *in) {
 }
 
 // Função para imprimir o ranking na tela
-void printranking(struct ranking *cabeca) {
-  struct ranking *temp = cabeca;
+void printranking(struct ranking *head) {
+  struct ranking *temp = head;
   int cont = 0;
   while (temp != NULL && (cont < 3)) {
     printf("%d° colocado: %d pontos\n", cont + 1, temp->score);
