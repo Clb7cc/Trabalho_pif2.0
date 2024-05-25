@@ -12,11 +12,11 @@ Jogo desenvolvido por alunos do 2° período de Ciência da Computação da C.E.
 
 Clone os arquivos desse Github para a sua máquina. Depois disso utilize a seguinte linha de código no seu terminal:
 
-  - gcc *.c
+  - gcc -o jogavel.out *.c
 
 A seguir, digite essa linha de código também no seu terminal:
 
-  - ./a.out
+  - ./jogavel.out
 
 Após isso você irá conseguir mexer a cobra usando o W, A, S e D, que representam cima, esqquerda, baixo e direita, respectivamente.
 
