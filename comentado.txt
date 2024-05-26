@@ -70,9 +70,9 @@ void addcobra(struct noparacobra **head, int x, int y) {
 // Função para imprimir a cobra na tela
 void printcobra(struct noparacobra *head) {
   struct noparacobra *temp2 = head;
-  while (temp2 != NULL) {
+  while (temp2 != NULL) { //enquanto tiver parte do corpo da cobra
     screenSetColor(GREEN, DARKGRAY);
-    screenGotoxy(temp2->Xno, temp2->Yno);
+    screenGotoxy(temp2->Xno, temp2->Yno); //coordenada X/Y q tem parte do corpo da cobra
     printf("I");
     temp2 = temp2->next;
   }
@@ -82,8 +82,8 @@ void printcobra(struct noparacobra *head) {
 void atualizarcobra(struct noparacobra *head) {
   struct noparacobra *temp2 = head;
   while (temp2 != NULL) {
-    screenGotoxy(temp2->Xno, temp2->Yno);
-    printf(" ");
+    screenGotoxy(temp2->Xno, temp2->Yno); //coordenada X/Y q tem parte do corpo da cobra
+    printf(" "); //printa um espaço no rabo da cobra quando ela anda
     temp2 = temp2->next;
   }
 }
@@ -92,30 +92,27 @@ void atualizarcobra(struct noparacobra *head) {
 void freecobra(struct noparacobra **head) {
   struct noparacobra *temp2 = *head;
   while (temp2 != NULL) {
-    struct noparacobra *temp1 = temp2;
-    temp2 = temp2->next;
-    free(temp1);
+    struct noparacobra *temp1 = temp2; //cria outro temporario
+    temp2 = temp2->next; //atualiza a posição do primeiro temporario
+    free(temp1); //libera o segundo
   }
 }
 
 // Função para adicionar uma nova cabeça à cobra
 void cobrandando(struct noparacobra **head, int x, int y) {
   struct noparacobra *newHead = (struct noparacobra *)malloc(sizeof(struct noparacobra));
-  if (newHead == NULL) {
-    exit(1);
-  }
 
-  newHead->Xno = x;
-  newHead->Yno = y;
-  newHead->next = *head;
-  *head = newHead;
+  newHead->Xno = x; //nova localização do X para cabeça da cobra
+  newHead->Yno = y; //nova localização do Y para cabeça da cobra
+  newHead->next = *head; //proximo da cabeça passa para a cabeça atual
+  *head = newHead; //cabeça recebe localização da nova cabeça
 
   struct noparacobra *temp1 = *head;
-  while (temp1->next->next != NULL) {
-    temp1 = temp1->next;
+  while (temp1->next->next != NULL) { //encontra o penultimo no
+    temp1 = temp1->next; //faz o penultimo no virar o ultimo
   }
 
-  free(temp1->next);
+  free(temp1->next); //libera o antigo ultimo no
   temp1->next = NULL;
 }
 
@@ -130,12 +127,12 @@ void printmaca(int x, int y) {
 int baternocorpo(struct noparacobra *head, int x, int y) {
   struct noparacobra *temp2 = head;
   while (temp2 != NULL) {
-    if (temp2->Xno == x && temp2->Yno == y) {
-      return 1;
+    if (temp2->Xno == x && temp2->Yno == y) { // Verifica se as coordenadas da cabeça são iguais às coordenadas fornecidas como partes do corpo
+      return 1; //se sim retorna 1
     }
-    temp2 = temp2->next;
+    temp2 = temp2->next; //adianta para verificar as outras partes do corpo da cobra
   }
-  return 0;
+  return 0; //se n bater retorna 0
 }
 
 // Função para gerar aleatoriamente a posição da maçã
