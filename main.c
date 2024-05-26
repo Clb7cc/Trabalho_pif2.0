@@ -92,7 +92,10 @@ void freecobra(struct noparacobra **head) {
 
 void cobrandando(struct noparacobra **head, int x, int y) {
   struct noparacobra *newHead = (struct noparacobra *)malloc(sizeof(struct noparacobra));
-  
+  if (newHead == NULL) {
+    exit(1);
+  }
+
   newHead->Xno = x;
   newHead->Yno = y;
   newHead->next = *head;
