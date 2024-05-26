@@ -138,191 +138,191 @@ int baternocorpo(struct noparacobra *head, int x, int y) {
   return 0; //se n bater retorna 0
 }
 
-// Função para gerar aleatoriamente a posição da maçã
+// Função para gerar uma posição aleatória para a maçã
 void randonmaca(int *x, int *y) {
-  *x = rand() % (MAXX - MINX - 1) + MINX + 1;
-  *y = rand() % (MAXY - MINY - 1) + MINY + 1;
-  int naogerex = 6;
-  int naogerey = 38;
-  while ((*x <= naogerex || *y >= naogerey) || (*x >= 6 && *x <= 43 && *y >= 13 && *y <= 14)) {
-    *x = rand() % (MAXX - MINX - 1) + MINX + 1;
-    *y = rand() % (MAXY - MINY - 1) + MINY + 1;
+  *x = rand() % (MAXX - MINX - 1) + MINX + 1; // Gera uma coordenada x aleatória
+  *y = rand() % (MAXY - MINY - 1) + MINY + 1; // Gera uma coordenada y aleatória
+  int naogerex = 6; // Limite inferior para a coordenada x
+  int naogerey = 38; // Limite superior para a coordenada y
+  while ((*x <= naogerex || *y >= naogerey) || (*x >= 6 && *x <= 43 && *y >= 13 && *y <= 14)) { // Condição para evitar certas posições
+    *x = rand() % (MAXX - MINX - 1) + MINX + 1; // Gera nova coordenada x se a condição for atendida
+    *y = rand() % (MAXY - MINY - 1) + MINY + 1; // Gera nova coordenada y se a condição for atendida
   }
 }
 
-// Função para adicionar uma pontuação ao ranking
+// Função para adicionar uma pontuação ao ranking em ordem decrescente
 void rankingemordem(struct ranking **head, int score) {
-  if (*head == NULL || score > (*head)->score) {
-    struct ranking *novo = (struct ranking *)malloc(sizeof(struct ranking));
-    novo->score = score;
-    novo->next = *head;
-    *head = novo;
+  if (*head == NULL || score > (*head)->score) { // Verifica se a lista está vazia ou se a nova pontuação é maior que a primeira
+    struct ranking *novo = (struct ranking *)malloc(sizeof(struct ranking)); // Aloca memória para um novo nó
+    novo->score = score; // Define a pontuação do novo nó
+    novo->next = *head; // Aponta o novo nó para a cabeça da lista
+    *head = novo; // Atualiza a cabeça da lista
   } else {
-    rankingemordem(&((*head)->next), score);
+    rankingemordem(&((*head)->next), score); // Chama recursivamente para encontrar a posição correta
   }
 }
 
 // Função para adicionar as pontuações ao arquivo
 void addnoranking(struct ranking *head, FILE *in) {
-  struct ranking *temp = head;
+  struct ranking *temp = head; // Ponteiro temporário para percorrer a lista
   while (temp != NULL) {
-    int score = temp->score;
-    if (fwrite(&score, sizeof(int), 1, in) != 1) {
-      break;
+    int score = temp->score; // Obtém a pontuação do nó atual
+    if (fwrite(&score, sizeof(int), 1, in) != 1) { // Escreve a pontuação no arquivo
+      break; // Interrompe se ocorrer um erro na escrita
     }
-    temp = temp->next;
+    temp = temp->next; // Move para o próximo nó
   }
 }
 
 // Função para imprimir o ranking na tela
 void printranking(struct ranking *head) {
-  struct ranking *temp = head;
-  int cont = 0;
-  while (temp != NULL && (cont < 3)) {
-    printf("%d° colocado: %d pontos\n", cont + 1, temp->score);
-    temp = temp->next;
-    cont++;
+  struct ranking *temp = head; // Ponteiro temporário para percorrer a lista
+  int cont = 0; // Contador para limitar a quantidade de impressões
+  while (temp != NULL && (cont < 3)) { // Imprime no máximo os três primeiros colocados
+    printf("%d° colocado: %d pontos\n", cont + 1, temp->score); // Imprime a posição e a pontuação
+    temp = temp->next; // Move para o próximo nó
+    cont++; // Incrementa o contador
   }
 }
 
 // Função para liberar a memória alocada para a lista de ranking
 void freeranking(struct ranking **head) {
-  struct ranking *temp2 = *head;
+  struct ranking *temp2 = *head; // Ponteiro temporário para percorrer a lista
   while (temp2 != NULL) {
-    struct ranking *temp1 = temp2;
-    temp2 = temp2->next;
-    free(temp1);
+    struct ranking *temp1 = temp2; // Ponteiro temporário para armazenar o nó atual
+    temp2 = temp2->next; // Move para o próximo nó
+    free(temp1); // Libera a memória do nó atual
   }
 }
 
 // Loop principal do jogo
 void jogoLoop(struct noparacobra *head, int *dirX, int *dirY, int *placar, int *recorde, time_t tempoinicial, int PosMacaX, int PosMacaY) {
-  int ch = 0;
-  while (ch != KEY_ESC) {
-    if (keyhit()) {
-      ch = readch();
+  int ch = 0; // Variável para armazenar a entrada do usuário
+  while (ch != KEY_ESC) { // Continua o loop até o usuário pressionar a tecla de escape
+    if (keyhit()) { // Verifica se uma tecla foi pressionada
+      ch = readch(); // Lê a tecla pressionada
       switch (ch) {
-        case KEY_W:
-          if (*dirY != 1) {
-            *dirX = 0;
-            *dirY = -1;
+        case KEY_W: // Se a tecla 'W' foi pressionada
+          if (*dirY != 1) { // Verifica se a direção não é para baixo
+            *dirX = 0; // Define a direção x como zero
+            *dirY = -1; // Define a direção y como para cima
           }
           break;
-        case KEY_S:
-          if (*dirY != -1) {
-            *dirX = 0;
-            *dirY = 1;
+        case KEY_S: // Se a tecla 'S' foi pressionada
+          if (*dirY != -1) { // Verifica se a direção não é para cima
+            *dirX = 0; // Define a direção x como zero
+            *dirY = 1; // Define a direção y como para baixo
           }
           break;
-        case KEY_A:
-          if (*dirX != 1) {
-            *dirX = -1;
-            *dirY = 0;
+        case KEY_A: // Se a tecla 'A' foi pressionada
+          if (*dirX != 1) { // Verifica se a direção não é para a direita
+            *dirX = -1; // Define a direção x como para a esquerda
+            *dirY = 0; // Define a direção y como zero
           }
           break;
-        case KEY_D:
-          if (*dirX != -1) {
-            *dirX = 1;
-            *dirY = 0;
+        case KEY_D: // Se a tecla 'D' foi pressionada
+          if (*dirX != -1) { // Verifica se a direção não é para a esquerda
+            *dirX = 1; // Define a direção x como para a direita
+            *dirY = 0; // Define a direção y como zero
           }
           break;
       }
-      screenUpdate();
+      screenUpdate(); // Atualiza a tela
     }
-    if (timerTimeOver() == 1) {
-      int newX = head->Xno + *dirX;
-      int newY = head->Yno + *dirY;
-      if (newX >= (MAXX) || newX <= MINX || newY >= MAXY || newY <= MINY) {
-        break;
+    if (timerTimeOver() == 1) { // Verifica se o temporizador expirou
+      int newX = head->Xno + *dirX; // Calcula a nova posição x da cabeça da cobra
+      int newY = head->Yno + *dirY; // Calcula a nova posição y da cabeça da cobra
+      if (newX >= (MAXX) || newX <= MINX || newY >= MAXY || newY <= MINY) { // Verifica se a nova posição está fora dos limites
+        break; // Sai do loop se estiver fora dos limites
       }
-      if (baternocorpo(head, newX, newY) == 1) {
-        break;
+      if (baternocorpo(head, newX, newY) == 1) { // Verifica se a cobra colidiu com seu próprio corpo
+        break; // Sai do loop se houve colisão
       }
-      if (newX == PosMacaX && newY == PosMacaY) {
-        addcobra(&head, PosMacaX, PosMacaY);
-        randonmaca(&PosMacaX, &PosMacaY);
-        printmaca(PosMacaX, PosMacaY);
-        (*placar)++;
+      if (newX == PosMacaX && newY == PosMacaY) { // Verifica se a cobra comeu a maçã
+        addcobra(&head, PosMacaX, PosMacaY); // Adiciona um segmento à cobra
+        randonmaca(&PosMacaX, &PosMacaY); // Gera uma nova posição para a maçã
+        printmaca(PosMacaX, PosMacaY); // Imprime a nova maçã na tela
+        (*placar)++; // Incrementa a pontuação
       }
-      atualizarcobra(head);
-      cobrandando(&head, newX, newY);
-      printcobra(head);
-      screenUpdate();
-      printembaixo(*placar, *recorde, (int)difftime(time(NULL), tempoinicial));
+      atualizarcobra(head); // Atualiza a posição da cobra
+      cobrandando(&head, newX, newY); // Move a cabeça da cobra para a nova posição
+      printcobra(head); // Imprime a cobra na tela
+      screenUpdate(); // Atualiza a tela
+      printembaixo(*placar, *recorde, (int)difftime(time(NULL), tempoinicial)); // Imprime a pontuação, recorde e tempo decorrido
     }
   }
 }
 
 // Função principal do programa
 int main() {
-  printf("          🐍🍎 SNAKE GAME 🍎🐍\n\n\n              Carregando...\n");
-  sleep(3);
-  struct noparacobra *head = NULL;
-  static int ch = 0;
-  int placar = 0;
-  int dirX = 1, dirY = 0;
-  FILE *in;
+  printf("          🐍🍎 SNAKE GAME 🍎🐍\n\n\n              Carregando...\n"); // Mensagem de inicialização
+  sleep(3); // Pausa de 3 segundos
+  struct noparacobra *head = NULL; // Inicializa a cabeça da cobra como NULL
+  static int ch = 0; // Variável para armazenar a entrada do usuário
+  int placar = 0; // Inicializa a pontuação com zero
+  int dirX = 1, dirY = 0; // Define a direção inicial da cobra
+  FILE *in; // Ponteiro para o arquivo de ranking
 
   // Inicialização dos módulos
-  screenInit(1);
-  keyboardInit();
-  timerInit(80);
+  screenInit(1); // Inicializa a tela
+  keyboardInit(); // Inicializa o teclado
+  timerInit(80); // Inicializa o temporizador
 
   // Adicionando a primeira parte da cobra
-  addcobra(&head, 25, 7);
+  addcobra(&head, 25, 7); // Adiciona a cabeça da cobra na posição inicial
   // Inicializando o gerador de números aleatórios
-  srand((unsigned int)time(NULL));
+  srand((unsigned int)time(NULL)); // Semente para o gerador de números aleatórios
   // Gerando a posição inicial da maçã
-  int PosMacaX = rand() % (MAXX - MINX) + MINX, PosMacaY = rand() % (MAXY - MINY) + MINY;
+  int PosMacaX = rand() % (MAXX - MINX) + MINX, PosMacaY = rand() % (MAXY - MINY) + MINY; // Gera a posição inicial da maçã
   // Imprimindo a maçã na tela
-  printmaca(PosMacaX, PosMacaY);
-  screenUpdate();
+  printmaca(PosMacaX, PosMacaY); // Imprime a maçã na tela
+  screenUpdate(); // Atualiza a tela
 
   // Verificando o recorde do jogo
-  int recorde = 0;
-  in = fopen("rankfile.txt", "r");
+  int recorde = 0; // Inicializa o recorde com zero
+  in = fopen("rankfile.txt", "r"); // Abre o arquivo de ranking para leitura
   if (in != NULL) {
-    while (fread(&placar, sizeof(int), 1, in) == 1) {
-      if (placar > recorde) {
-        recorde = placar;
+    while (fread(&placar, sizeof(int), 1, in) == 1) { // Lê as pontuações do arquivo
+      if (placar > recorde) { // Verifica se a pontuação lida é maior que o recorde atual
+        recorde = placar; // Atualiza o recorde
       }
     }
-    fclose(in);
+    fclose(in); // Fecha o arquivo
   }
 
   // Inicializando o tempo do jogo
-  time_t tempoinicial, tempovivo;
-  int tempo = 0;
-  tempoinicial = time(NULL);
+  time_t tempoinicial, tempovivo; // Variáveis para armazenar o tempo
+  int tempo = 0; // Inicializa o tempo com zero
+  tempoinicial = time(NULL); // Armazena o tempo inicial
   // Iniciando o loop do jogo
-  jogoLoop(head, &dirX, &dirY, &placar, &recorde, tempoinicial, PosMacaX, PosMacaY);
+  jogoLoop(head, &dirX, &dirY, &placar, &recorde, tempoinicial, PosMacaX, PosMacaY); // Chama a função do loop principal do jogo
   // Liberando a memória alocada para a cobra
-  freecobra(&head);
-  keyboardDestroy();
-  screenDestroy();
+  freecobra(&head); // Libera a memória alocada para a cobra
+  keyboardDestroy(); // Finaliza a inicialização do teclado
+  screenDestroy(); // Finaliza a inicialização da tela
   // Abrindo o arquivo de ranking para escrita
-  in = fopen("rankfile.txt", "a");
+  in = fopen("rankfile.txt", "a"); // Abre o arquivo de ranking para escrita
   // Escrevendo a pontuação atual no arquivo
-  fwrite(&placar, sizeof(int), 1, in);
-  fclose(in);
-  struct ranking *lista = NULL;
+  fwrite(&placar, sizeof(int), 1, in); // Escreve a pontuação no arquivo
+  fclose(in); // Fecha o arquivo
+  struct ranking *lista = NULL; // Inicializa a lista de ranking como NULL
   // Lendo as pontuações do arquivo e ordenando em ordem decrescente
-  in = fopen("rankfile.txt", "r");
-  while (fread(&placar, sizeof(int), 1, in) == 1) {
-    rankingemordem(&lista, placar);
+  in = fopen("rankfile.txt", "r"); // Abre o arquivo de ranking para leitura
+  while (fread(&placar, sizeof(int), 1, in) == 1) { // Lê as pontuações do arquivo
+    rankingemordem(&lista, placar); // Adiciona a pontuação na lista em ordem
   }
-  fclose(in);
+  fclose(in); // Fecha o arquivo
   // Abrindo o arquivo de ranking para escrita
-  in = fopen("rankfile.txt", "w");
+  in = fopen("rankfile.txt", "w"); // Abre o arquivo de ranking para escrita
   // Escrevendo as pontuações ordenadas no arquivo
-  addnoranking(lista, in);
-  fclose(in);
+  addnoranking(lista, in); // Escreve as pontuações ordenadas no arquivo
+  fclose(in); // Fecha o arquivo
   // Imprimindo o ranking na tela
-  printranking(lista);
+  printranking(lista); // Imprime o ranking na tela
   // Liberando a memória alocada para a lista de ranking
-  freeranking(&lista);
+  freeranking(&lista); // Libera a memória alocada para a lista de ranking
   // Finalizando o timer
-  timerDestroy();
+  timerDestroy(); // Finaliza a inicialização do temporizador
 
-  return 0;
+  return 0; // Retorna 0 para indicar que o programa terminou com sucesso
 }
