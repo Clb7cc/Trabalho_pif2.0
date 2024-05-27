@@ -92,9 +92,6 @@ void freecobra(struct noparacobra **head) {
 
 void cobrandando(struct noparacobra **head, int x, int y) {
   struct noparacobra *newHead = (struct noparacobra *)malloc(sizeof(struct noparacobra));
-  if (newHead == NULL) {
-    exit(1);
-  }
 
   newHead->Xno = x;
   newHead->Yno = y;
@@ -130,12 +127,6 @@ int baternocorpo(struct noparacobra *head, int x, int y) {
 void randonmaca(int *x, int *y) {
   *x = rand() % (MAXX - MINX) + MINX + 1;
   *y = rand() % (MAXY - MINY) + MINY + 1;
-  int naogerex = 6;
-  int naogerey = 38;
-  while ((*x < naogerex || *y > naogerey) || (*x > 6 && *x < 43 && *y > 13 && *y < 14)) {
-    *x = rand() % (MAXX - MINX ) + MINX + 1;
-    *y = rand() % (MAXY - MINY ) + MINY + 1;
-  }
 }
 
 void rankingemordem(struct ranking **head, int score) {

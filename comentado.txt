@@ -101,10 +101,7 @@ void freecobra(struct noparacobra **head) {
 // Função para adicionar uma nova cabeça à cobra
 void cobrandando(struct noparacobra **head, int x, int y) {
   struct noparacobra *newHead = (struct noparacobra *)malloc(sizeof(struct noparacobra));
-  if (newHead == NULL) { //se não tiver nova cabeça da cobra sai do jogo
-    exit(1);
-  }
-
+  
   newHead->Xno = x; //nova localização do X para cabeça da cobra
   newHead->Yno = y; //nova localização do Y para cabeça da cobra
   newHead->next = *head; //proximo da cabeça passa para a cabeça atual
@@ -142,12 +139,6 @@ int baternocorpo(struct noparacobra *head, int x, int y) {
 void randonmaca(int *x, int *y) {
   *x = rand() % (MAXX - MINX - 1) + MINX + 1; // Gera uma coordenada x aleatória
   *y = rand() % (MAXY - MINY - 1) + MINY + 1; // Gera uma coordenada y aleatória
-  int naogerex = 6; // Limite inferior para a coordenada x
-  int naogerey = 38; // Limite superior para a coordenada y
-  while ((*x <= naogerex || *y >= naogerey) || (*x >= 6 && *x <= 43 && *y >= 13 && *y <= 14)) { // Condição para evitar certas posições
-    *x = rand() % (MAXX - MINX - 1) + MINX + 1; // Gera nova coordenada x se a condição for atendida
-    *y = rand() % (MAXY - MINY - 1) + MINY + 1; // Gera nova coordenada y se a condição for atendida
-  }
 }
 
 // Função para adicionar uma pontuação ao ranking em ordem decrescente
