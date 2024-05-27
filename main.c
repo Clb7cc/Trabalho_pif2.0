@@ -170,7 +170,7 @@ void freeranking(struct ranking **head) {
   }
 }
 
-void teclado(struct noparacobra *head, int *dirX, int *dirY, int *placar, int *recorde, time_t tempoinicial, int PosMacaX, int PosMacaY) {
+void jogoLoop(struct noparacobra *head, int *dirX, int *dirY, int *placar, int *recorde, time_t tempoinicial, int PosMacaX, int PosMacaY) {
   int ch = 0;
   while (ch != KEY_ESC) {
     if (keyhit()) {
@@ -260,7 +260,7 @@ int main() {
   time_t tempoinicial, tempovivo;
   int tempo = 0;
   tempoinicial = time(NULL);
-  teclado(head, &dirX, &dirY, &placar, &recorde, tempoinicial, PosMacaX, PosMacaY);
+  jogoLoop(head, &dirX, &dirY, &placar, &recorde, tempoinicial, PosMacaX, PosMacaY);
   freecobra(&head);
   keyboardDestroy();
   screenDestroy();
