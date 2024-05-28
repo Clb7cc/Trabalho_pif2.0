@@ -125,8 +125,8 @@ int baternocorpo(struct noparacobra *head, int x, int y) {
 }
 
 void randonmaca(int *x, int *y) {
-  *x = rand() % (MAXX - MINX) + MINX + 1;
-  *y = rand() % (MAXY - MINY) + MINY + 1;
+  *x = rand() % (MAXX - MINX) + MINX - 1;
+  *y = rand() % (MAXY - MINY) + MINY - 1;
 }
 
 void rankingemordem(struct ranking **head, int score) {
